@@ -1,0 +1,14 @@
+{
+    "name": "ConsoleInstaller",
+    "version": "0.1.0",
+    "description": "Plugins allow to install Piwik from console.",
+    "theme": false,
+    "license": "GPL v3+",
+    "require": {
+        "piwik": ">=2.16.0",
+        "php": ">=5.4"
+    },
+    "support": {
+        "email": "kaz231@outlook.com"
+    }
+}
