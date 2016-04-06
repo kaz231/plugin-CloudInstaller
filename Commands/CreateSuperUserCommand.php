@@ -23,6 +23,8 @@ use Piwik\Plugins\UsersManager\API as UserManagerAPI;
  */
 class CreateSuperUserCommand extends ConsoleCommand
 {
+    use ExceptionToOutputLogHandler;
+
     const USERNAME_ARG = 'username';
     const PASSWORD_ARG = 'password';
     const EMAIL_ARG = 'email';
@@ -45,6 +47,8 @@ class CreateSuperUserCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'Use this flag if provided password was encoded with MD5'
             );
+
+        $this->extendDefinitionOfCommand($this);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -56,16 +60,18 @@ class CreateSuperUserCommand extends ConsoleCommand
         $alias = $input->getOption(self::ALIAS_OPTION);
         $isPasswordHashed = $input->getOption(self::HASHED_PASSWORD) ? true : false;
 
-        Access::doAsSuperUser(function () use ($username, $password, $email, $alias, $isPasswordHashed) {
-            UserManagerAPI::getInstance()->addUser(
-                $username,
-                $password,
-                $email,
-                $alias ?: false,
-                $isPasswordHashed
-            );
+        $this->handle($input, $output, function () use ($username, $password, $email, $alias, $isPasswordHashed) {
+            Access::doAsSuperUser(function () use ($username, $password, $email, $alias, $isPasswordHashed) {
+                UserManagerAPI::getInstance()->addUser(
+                    $username,
+                    $password,
+                    $email,
+                    $alias ?: false,
+                    $isPasswordHashed
+                );
 
-            UserManagerAPI::getInstance()->setSuperUserAccess($username, true);
+                UserManagerAPI::getInstance()->setSuperUserAccess($username, true);
+            });
         });
     }
 }

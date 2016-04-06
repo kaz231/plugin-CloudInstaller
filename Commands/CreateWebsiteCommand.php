@@ -23,6 +23,8 @@ use Piwik\Plugins\SitesManager\API as SitesManagerAPI;
  */
 class CreateWebsiteCommand extends ConsoleCommand
 {
+    use ExceptionToOutputLogHandler;
+
     const NAME_ARG = 'name';
     const URL_ARG = 'url';
 
@@ -41,6 +43,8 @@ class CreateWebsiteCommand extends ConsoleCommand
             ->addOption(self::TIMEZONE_OPTION, null, InputOption::VALUE_OPTIONAL)
             ->addOption(self::CURRENCY_OPTION, null, InputOption::VALUE_OPTIONAL)
             ->addOption(self::START_DATE_OPTION, null, InputOption::VALUE_OPTIONAL);
+
+        $this->extendDefinitionOfCommand($this);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -53,26 +57,28 @@ class CreateWebsiteCommand extends ConsoleCommand
         $currency = $input->getOption(self::CURRENCY_OPTION);
         $startDate = $input->getOption(self::START_DATE_OPTION);
 
-        Access::doAsSuperUser(function () use ($name, $url, $eCommerce, $timezone, $currency, $startDate) {
-            SitesManagerAPI::getInstance()->addSite(
-                $name,
-                $url,
-                $eCommerce,
-                null,
-                null,
-                null,
-                null,
-                null,
-                $timezone,
-                $currency,
-                null,
-                $startDate,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
+        $this->handle($input, $output, function () use ($name, $url, $eCommerce, $timezone, $currency, $startDate) {
+            Access::doAsSuperUser(function () use ($name, $url, $eCommerce, $timezone, $currency, $startDate) {
+                SitesManagerAPI::getInstance()->addSite(
+                    $name,
+                    $url,
+                    $eCommerce,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    $timezone,
+                    $currency,
+                    null,
+                    $startDate,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                );
+            });
         });
     }
 }
